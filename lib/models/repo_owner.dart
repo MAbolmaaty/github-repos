@@ -15,8 +15,8 @@ class RepoOwner {
   String type;
 
   RepoOwner({
-    required this.name,
-    required this.avatarURL,
-    required this.type,
+    this.name = "",
+    this.avatarURL = "",
+    this.type = "",
   });
 }

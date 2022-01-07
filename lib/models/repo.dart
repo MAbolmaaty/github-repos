@@ -23,11 +23,11 @@ class Repo {
   RepoOwner owner;
 
   Repo(
-      {required this.fullName,
-      required this.dateCreated,
-      required this.dateLastUpdated,
-      required this.star,
-      required this.programmingLanguage,
-      required this.forks,
+      {this.fullName = "",
+      this.dateCreated = "",
+      this.dateLastUpdated = "",
+      this.star = 0,
+      this.programmingLanguage = "",
+      this.forks = 0,
       required this.owner});
 }

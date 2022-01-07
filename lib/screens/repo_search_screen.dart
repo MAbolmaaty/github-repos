@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:github_repos/models/repo.dart';
 import 'package:github_repos/models/repo_model.dart';
+import 'package:github_repos/network/repos_service.dart';
 import 'package:github_repos/screens/repo_detail_screen.dart';
 
 class RepoSearchScreen extends StatefulWidget {
@@ -17,12 +18,13 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
   APIRepoQuery? _repoQuery = null;
 
   Future loadRecipes() async {
-    final jsonString = await rootBundle.loadString('assets/recipes1.json');
-    setState(() {
-      // 2
-      _repoQuery = APIRepoQuery.fromJson(jsonDecode(jsonString));
-      print(_repoQuery?.reposCount);
-    });
+    await ReposService.create().queryRepos('flutter');
+    // final jsonString = await rootBundle.loadString('assets/recipes1.json');
+    // setState(() {
+    //   // 2
+    //   _repoQuery = APIRepoQuery.fromJson(jsonDecode(jsonString));
+    //   print(_repoQuery?.reposCount);
+    // });
   }
 
   @override

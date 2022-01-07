@@ -15,7 +15,7 @@ class APIRepoQuery {
   List<Repo> repos;
 
   APIRepoQuery({
-    required this.reposCount,
+    this.reposCount = 0,
     required this.repos,
   });
 }

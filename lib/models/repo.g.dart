@@ -7,12 +7,12 @@ part of 'repo.dart';
 // **************************************************************************
 
 Repo _$RepoFromJson(Map<String, dynamic> json) => Repo(
-      fullName: json['full_name'] as String,
-      dateCreated: json['created_at'] as String,
-      dateLastUpdated: json['updated_at'] as String,
-      star: json['stargazers_count'] as int,
-      programmingLanguage: json['language'] as String,
-      forks: json['forks_count'] as int,
+      fullName: json['full_name'] as String? ?? "",
+      dateCreated: json['created_at'] as String? ?? "",
+      dateLastUpdated: json['updated_at'] as String? ?? "",
+      star: json['stargazers_count'] as int? ?? 0,
+      programmingLanguage: json['language'] as String? ?? "",
+      forks: json['forks_count'] as int? ?? 0,
       owner: RepoOwner.fromJson(json['owner'] as Map<String, dynamic>),
     );
 

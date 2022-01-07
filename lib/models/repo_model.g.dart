@@ -7,7 +7,7 @@ part of 'repo_model.dart';
 // **************************************************************************
 
 APIRepoQuery _$APIRepoQueryFromJson(Map<String, dynamic> json) => APIRepoQuery(
-      reposCount: json['total_count'] as int,
+      reposCount: json['total_count'] as int? ?? 0,
       repos: (json['items'] as List<dynamic>)
           .map((e) => Repo.fromJson(e as Map<String, dynamic>))
           .toList(),
