@@ -14,6 +14,9 @@ Repo _$RepoFromJson(Map<String, dynamic> json) => Repo(
       programmingLanguage: json['language'] as String? ?? "",
       forks: json['forks_count'] as int? ?? 0,
       owner: RepoOwner.fromJson(json['owner'] as Map<String, dynamic>),
+      description: json['description'] as String? ?? "",
+      topics:
+          (json['topics'] as List<dynamic>?)?.map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$RepoToJson(Repo instance) => <String, dynamic>{
@@ -24,4 +27,6 @@ Map<String, dynamic> _$RepoToJson(Repo instance) => <String, dynamic>{
       'language': instance.programmingLanguage,
       'forks_count': instance.forks,
       'owner': instance.owner,
+      'description': instance.description,
+      'topics': instance.topics,
     };

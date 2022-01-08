@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:github_repos/app_theme.dart';
-import 'package:github_repos/screens/home_screen.dart';
+import 'package:github_repos/screens/repo_search_screen.dart';
 
 void main() {
   runApp(const GithupReposApp());
@@ -15,8 +15,9 @@ class GithupReposApp extends StatelessWidget {
     final theme = AppTheme.light();
     return MaterialApp(
       title: 'Github Repos',
+      debugShowCheckedModeBanner: false,
       theme: theme,
-      home: const HomeScreen(),
+      home: const RepoSearchScreen(),
     );
   }
 }

@@ -1,14 +1,13 @@
 import 'dart:collection';
-import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chopper/chopper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:github_repos/models/repo.dart';
 import 'package:github_repos/models/repo_model.dart';
 import 'package:github_repos/network/model_response.dart';
 import 'package:github_repos/network/repos_service.dart';
-import 'package:github_repos/screens/repo_detail_screen.dart';
 
 class RepoSearchScreen extends StatefulWidget {
   const RepoSearchScreen({Key? key}) : super(key: key);
@@ -23,41 +22,13 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
   bool isErrorState = false;
   int currentCount = 0;
 
-  APIRepoQuery? _repoQuery = null;
-
-  Future loadRecipes() async {
-    await ReposService.create().queryRepos('flutter');
-    // final jsonString = await rootBundle.loadString('assets/recipes1.json');
-    // setState(() {
-    //   // 2
-    //   _repoQuery = APIRepoQuery.fromJson(jsonDecode(jsonString));
-    //   print(_repoQuery?.reposCount);
-    // });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadRecipes();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: _buildReposLoader(context),
-        // ListView.builder(
-        //     itemCount: 0,
-        //     itemBuilder: (BuildContext context, int index) {
-        //       return GestureDetector(
-        //           onTap: () {
-        //             Navigator.push(context,
-        //                 MaterialPageRoute(builder: (context) {
-        //               return RepoDetailScreen(repo: Repo.repos[index]);
-        //             }));
-        //           },
-        //           child: buildRepoCard(Repo.repos[index]));
-        //     })
+    return SafeArea(
+      child: Scaffold(
+        body: Center(
+          child: _buildReposLoader(context),
+        ),
       ),
     );
   }
@@ -123,25 +94,130 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
     final repo = repos[index];
     return GestureDetector(
       child: Card(
-        elevation: 2.0,
+        elevation: 4.0,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: <Widget>[
-              Text(
-                repo.fullName,
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Palatino',
-                ),
-              )
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(6.0),
+                    ),
+                    child: CachedNetworkImage(
+                      imageUrl: repo.owner.avatarURL,
+                      height: 50,
+                      width: 50,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 12.0,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          repo.fullName,
+                          style: const TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Palatino',
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 8.0,
+                        ),
+                        Text(
+                          repo.description,
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.grey[400],
+                            fontFamily: 'Palatino',
+                          ),
+                        ),
+                        Wrap(
+                          children: _buildRepoTopics(repo.topics),
+                        ),
+                        const SizedBox(
+                          height: 28.0,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/ic_fork.svg',
+                                  height: 15,
+                                  width: 15,
+                                ),
+                                const SizedBox(
+                                  width: 4.0,
+                                ),
+                                Text(
+                                  repo.forks.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 10.0,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Palatino',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.end,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/ic_star.svg',
+                                  height: 14,
+                                  width: 14,
+                                ),
+                                const SizedBox(
+                                  width: 4.0,
+                                ),
+                                Text(
+                                  repo.star.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 10.0,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Palatino',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildRepoTopics(List<String>? topics) {
+    List<Widget> topicWidgets = [const Text("")];
+    if (topics == null) return topicWidgets;
+    for (final topic in topics) {
+      topicWidgets.add(Container(
+          decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.09),
+              borderRadius: const BorderRadius.all(Radius.circular(10.0))),
+          margin: const EdgeInsets.all(4),
+          padding: const EdgeInsets.all(4),
+          child: Text("#" + topic)));
+    }
+    return topicWidgets;
   }
 }

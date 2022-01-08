@@ -21,13 +21,18 @@ class Repo {
   @JsonKey(name: 'forks_count')
   int forks;
   RepoOwner owner;
+  String description;
+  List<String>? topics;
 
-  Repo(
-      {this.fullName = "",
-      this.dateCreated = "",
-      this.dateLastUpdated = "",
-      this.star = 0,
-      this.programmingLanguage = "",
-      this.forks = 0,
-      required this.owner});
+  Repo({
+    this.fullName = "",
+    this.dateCreated = "",
+    this.dateLastUpdated = "",
+    this.star = 0,
+    this.programmingLanguage = "",
+    this.forks = 0,
+    required this.owner,
+    this.description = "",
+    this.topics,
+  });
 }
