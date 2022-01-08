@@ -21,6 +21,7 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
   List<Repo> currentSearchList = [];
   bool isErrorState = false;
   late TextEditingController searchTextController;
+  bool gridView = false;
 
   @override
   void initState() {
@@ -75,12 +76,19 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
                 ))
               ],
             )),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SvgPicture.asset(
-                'assets/ic_grid.svg',
-                height: 20,
-                width: 20,
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  gridView = !gridView;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SvgPicture.asset(
+                  gridView ? 'assets/ic_list.svg' : 'assets/ic_grid.svg',
+                  height: 20,
+                  width: 20,
+                ),
               ),
             ),
           ],
@@ -136,13 +144,13 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
             final result = snapshot.data?.body;
             if (result == null || result is Error) {
               isErrorState = true;
-              return _buildReposList(context, currentSearchList);
+              return _buildRepos(context, currentSearchList);
             }
             final query = (result as Success).value;
             isErrorState = false;
             currentSearchList.addAll(query.repos);
 
-            return _buildReposList(context, currentSearchList);
+            return _buildRepos(context, currentSearchList);
           } else {
             return const Center(
               child: Padding(
@@ -157,21 +165,32 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
               ),
             );
           }
-          return _buildReposList(context, currentSearchList);
         });
   }
 
-  Widget _buildReposList(BuildContext reposListContext, List<Repo> repos) {
+  Widget _buildRepos(BuildContext reposListContext, List<Repo> repos) {
+    final size = MediaQuery.of(context).size;
+    final itemHeight = 350;
+    final itemWidth = size.width / 2;
     return Flexible(
-      child: ListView.builder(
-          itemCount: repos.length,
-          itemBuilder: (BuildContext context, int index) {
-            return _buildRepoCard(reposListContext, repos, index);
-          }),
+      child: gridView
+          ? GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: (itemWidth / itemHeight)),
+              itemCount: repos.length,
+              itemBuilder: (BuildContext context, int index) {
+                return _buildRepoCardForGrid(reposListContext, repos, index);
+              })
+          : ListView.builder(
+              itemCount: repos.length,
+              itemBuilder: (BuildContext context, int index) {
+                return _buildRepoCardForList(reposListContext, repos, index);
+              }),
     );
   }
 
-  Widget _buildRepoCard(
+  Widget _buildRepoCardForList(
       BuildContext topLevelContext, List<Repo> repos, int index) {
     final repo = repos[index];
     return GestureDetector(
@@ -312,17 +331,112 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
     );
   }
 
+  Widget _buildRepoCardForGrid(
+      BuildContext topLevelContext, List<Repo> repos, int index) {
+    final repo = repos[index];
+    return GestureDetector(
+      child: Card(
+        elevation: 4.0,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              ClipRRect(
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(6.0),
+                ),
+                child: CachedNetworkImage(
+                  imageUrl: repo.owner.avatarURL,
+                  height: 50,
+                  width: 50,
+                  fit: BoxFit.fill,
+                ),
+              ),
+              const SizedBox(
+                height: 12.0,
+              ),
+              Text(
+                repo.fullName,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Palatino',
+                ),
+              ),
+              const SizedBox(
+                height: 8.0,
+              ),
+              Text(
+                repo.description,
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12.0,
+                  fontWeight: FontWeight.w300,
+                  color: Colors.grey[400],
+                  fontFamily: 'Palatino',
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Wrap(
+                children: _buildRepoTopics(repo.topics),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Wrap(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/ic_fork.svg',
+                        height: 15,
+                        width: 15,
+                      ),
+                      const SizedBox(
+                        width: 4.0,
+                      ),
+                      Text(
+                        repo.forks.toString(),
+                        style: const TextStyle(
+                          fontSize: 10.0,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Palatino',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   List<Widget> _buildRepoTopics(List<String>? topics) {
     List<Widget> topicWidgets = [const Text("")];
     if (topics == null) return topicWidgets;
-    for (final topic in topics) {
+    for (int i = 0; i < topics.length; i++) {
+      if (gridView && i == 3) break;
       topicWidgets.add(Container(
           decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.09),
               borderRadius: const BorderRadius.all(Radius.circular(10.0))),
           margin: const EdgeInsets.all(4),
           padding: const EdgeInsets.all(4),
-          child: Text("#" + topic)));
+          child: Text("#" + topics[i])));
     }
     return topicWidgets;
   }

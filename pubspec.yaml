@@ -77,6 +77,7 @@ flutter:
     - assets/ic_star.svg
     - assets/ic_screwdriver.svg
     - assets/ic_grid.svg
+    - assets/ic_list.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
