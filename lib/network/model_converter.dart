@@ -42,7 +42,7 @@ class ModelConverter implements Converter {
       }
 
       final repoQuery = APIRepoQuery.fromJson(mapData);
-      print(repoQuery.repos[0].owner.type);
+
       return response.copyWith<BodyType>(body: Success(repoQuery) as BodyType);
     } catch (e) {
       print(e.toString());
