@@ -20,22 +20,89 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
   bool loading = false;
   List<Repo> currentSearchList = [];
   bool isErrorState = false;
-  int currentCount = 0;
+  late TextEditingController searchTextController;
+
+  @override
+  void initState() {
+    super.initState();
+    searchTextController = TextEditingController(text: 'flutter');
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Center(
-          child: _buildReposLoader(context),
+        body: Column(
+          children: <Widget>[
+            _buildSearchCard(),
+            _buildReposLoader(context),
+          ],
         ),
       ),
     );
   }
 
+  Widget _buildSearchCard() {
+    return Card(
+      elevation: 4,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+      child: Padding(
+        padding: const EdgeInsets.all(4.4),
+        child: Row(
+          children: [
+            IconButton(
+                onPressed: () {
+                  startSearch();
+                },
+                icon: const Icon(Icons.search)),
+            const SizedBox(
+              width: 6.0,
+            ),
+            Expanded(
+                child: Row(
+              children: <Widget>[
+                Expanded(
+                    child: TextField(
+                  decoration: const InputDecoration(
+                      border: InputBorder.none, hintText: 'Search'),
+                  autofocus: false,
+                  textInputAction: TextInputAction.done,
+                  controller: searchTextController,
+                  onEditingComplete: () {
+                    startSearch();
+                  },
+                ))
+              ],
+            )),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SvgPicture.asset(
+                'assets/ic_grid.svg',
+                height: 20,
+                width: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void startSearch() {
+    FocusScope.of(context).requestFocus(new FocusNode());
+    setState(() {
+      currentSearchList.clear();
+    });
+  }
+
   Widget _buildReposLoader(BuildContext context) {
+    if (searchTextController.text.length < 2) {
+      return Container();
+    }
     return FutureBuilder<Response<Result<APIRepoQuery>>>(
-        future: ReposService.create().queryRepos("flutter"),
+        future:
+            ReposService.create().queryRepos(searchTextController.text.trim()),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
@@ -76,17 +143,32 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
             currentSearchList.addAll(query.repos);
 
             return _buildReposList(context, currentSearchList);
+          } else {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.only(top: 18.0),
+                child: SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            );
           }
           return _buildReposList(context, currentSearchList);
         });
   }
 
   Widget _buildReposList(BuildContext reposListContext, List<Repo> repos) {
-    return ListView.builder(
-        itemCount: repos.length,
-        itemBuilder: (BuildContext context, int index) {
-          return _buildRepoCard(reposListContext, repos, index);
-        });
+    return Flexible(
+      child: ListView.builder(
+          itemCount: repos.length,
+          itemBuilder: (BuildContext context, int index) {
+            return _buildRepoCard(reposListContext, repos, index);
+          }),
+    );
   }
 
   Widget _buildRepoCard(
@@ -142,6 +224,9 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
                             fontFamily: 'Palatino',
                           ),
                         ),
+                        const SizedBox(
+                          height: 10,
+                        ),
                         Wrap(
                           children: _buildRepoTopics(repo.topics),
                         ),
@@ -163,6 +248,27 @@ class _RepoSearchScreenState extends State<RepoSearchScreen> {
                                 ),
                                 Text(
                                   repo.forks.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 10.0,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Palatino',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.end,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/ic_screwdriver.svg',
+                                  height: 14,
+                                  width: 14,
+                                ),
+                                const SizedBox(
+                                  width: 4.0,
+                                ),
+                                Text(
+                                  repo.programmingLanguage,
                                   style: const TextStyle(
                                     fontSize: 10.0,
                                     fontWeight: FontWeight.w700,
